@@ -1,5 +1,5 @@
 resource "local_file" "metrics_server" {
-  filename = "${path.root}/deployables/1_metrics_server.txt"
+  filename = "${path.root}/_deployables/1_metrics_server.txt"
   content  = <<EOF
 ##### Deploy latest Kubernetes Metrics Server
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
@@ -7,7 +7,7 @@ EOF
 }
 
 resource "local_file" "cluster_autoscaler" {
-  filename = "${path.root}/deployables/2_cluster_autoscaler.yaml"
+  filename = "${path.root}/_deployables/2_cluster_autoscaler.yaml"
   content  = <<EOF
 ---
 apiVersion: v1
@@ -182,6 +182,12 @@ spec:
               mountPath: /etc/ssl/certs/ca-certificates.crt #/etc/ssl/certs/ca-bundle.crt for Amazon Linux Worker Nodes
               readOnly: true
           imagePullPolicy: "Always"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
       volumes:
         - name: ssl-certs
           hostPath:
@@ -190,61 +196,17 @@ EOF
 }
 
 resource "local_file" "alb_controller" {
-  filename = "${path.root}/deployables/3_alb_controller.txt"
+  filename = "${path.root}/_deployables/3_alb_controller.txt"
   content  = <<EOF
 ##### (if necessary) Update Local Helm Repository
 helm repo add eks https://aws.github.io/eks-charts
 helm repo update
 
 ##### Deploy the Chart
-helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
-  -n kube-system \
+helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system \
   --set clusterName=${aws_eks_cluster.main.id} \
   --set serviceAccount.create=true \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="${aws_iam_role.alb_controller.arn}" \
-  --set serviceAccount.name=aws-load-balancer-controller \
-  --set image.repository=${local.alb_ecr_url}/amazon/aws-load-balancer-controller
-EOF
-}
-
-resource "local_file" "ebs_csi_driver" {
-  filename = "${path.root}/deployables/4_ebs_csi_driver.txt"
-  content  = <<EOF
-##### Deploy the CSI Driver
-kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
-
-##### Annotate the Service Acccount to enable IRSA
-kubectl annotate serviceaccount ebs-csi-controller-sa \
-  -n kube-system \
-  eks.amazonaws.com/role-arn=${aws_iam_role.ebs_csi_driver.arn}
-
-##### Re-deploy pods with IRSA
-kubectl delete pods \
-  -n kube-system \
-  -l=app=ebs-csi-controller
-
-##### Deploy new Storage Class
-kubectl apply -f ${path.cwd}/tenant/${var.environment}/deployables/ebs_sc.yaml
-
-##### Delete old Storage Class
-kubectl delete sc gp2
-EOF
-}
-
-resource "local_file" "ebs_sc" {
-  filename = "${path.root}/deployables/ebs_sc.yaml"
-  content  = <<EOF
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: ebs-sc
-  annotations:
-    storageclass.kubernetes.io/is-default-class: 'true'
-parameters:
-  fsType: xfs
-  type: gp3
-provisioner: ebs.csi.aws.com
-reclaimPolicy: Delete
-volumeBindingMode: WaitForFirstConsumer
+  --set serviceAccount.name=aws-load-balancer-controller
 EOF
 }

@@ -9,6 +9,7 @@ variable "eks_version" {}
 variable "vpccni_version" {}
 variable "coredns_version" {}
 variable "kubeproxy_version" {}
+variable "ebscsi_version" {}
 variable "main_capacity_type" {}
 variable "extra_capacity_type" {}
 variable "main_disk_size" {}
