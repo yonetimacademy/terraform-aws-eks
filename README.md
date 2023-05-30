@@ -19,6 +19,7 @@ module "eks" {
   vpccni_version       = "v1.12.5-eksbuild.2"
   coredns_version      = "v1.9.3-eksbuild.2"
   kubeproxy_version    = "v1.26.2-eksbuild.1"
+  ebscsi_version       = "v1.19.0-eksbuild.1"
   main_capacity_type   = "SPOT"
   extra_capacity_type  = "SPOT"
   main_disk_size       = 30
