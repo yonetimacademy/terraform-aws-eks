@@ -1,11 +1,11 @@
 # terraform-aws-eks
 
-Magicorn made Terraform Module for AWS Provider
+Cloud&Cloud made Terraform Module for AWS Provider
 --
 ```
 module "eks" {
-  source         = "magicorntech/eks/aws"
-  version        = "0.0.2"
+  source         = "yonetimacademy/eks/aws"
+  version        = "0.0.1"
   tenant         = var.tenant
   name           = var.name
   environment    = var.environment
