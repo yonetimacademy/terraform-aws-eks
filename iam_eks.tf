@@ -93,3 +93,8 @@ resource "aws_iam_role_policy_attachment" "AmazonSSMReadOnlyAccess" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
   role       = aws_iam_role.node.name
 }
+
+resource "aws_iam_role_policy_attachment" "AmazonS3FullAccess" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role       = aws_iam_role.node.name
+}
