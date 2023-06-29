@@ -16,6 +16,14 @@ resource "aws_launch_template" "main" {
 
   ebs_optimized = true
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "optional"
+    instance_metadata_tags      = "enabled"
+    http_protocol_ipv6          = "disabled"
+    http_put_response_hop_limit = 2
+  }
+
   tag_specifications {
     resource_type = "instance"
 
@@ -56,6 +64,14 @@ resource "aws_launch_template" "extra" {
   }
 
   ebs_optimized = true
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "optional"
+    instance_metadata_tags      = "enabled"
+    http_protocol_ipv6          = "disabled"
+    http_put_response_hop_limit = 2
+  }
 
   tag_specifications {
     resource_type = "instance"
