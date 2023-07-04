@@ -49,32 +49,13 @@ resource "aws_iam_role_policy" "deployer" {
     {
       "Effect": "Allow",
       "Action": [
-        "ecr:GetAuthorizationToken"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ecr:BatchGetImage",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:DescribeImages",
-        "ecr:DescribeRepositories",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:ListImages"
-      ],
-      "Resource": "arn:aws:ecr:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:repository/kubehelm"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
       ],
       "Resource": [
-        "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${var.tenant}-*-deploy-*",
-        "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${var.tenant}-*-deploy-*:*"
+        "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${var.tenant}-${var.name}-*-deploy-*",
+        "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/codebuild/${var.tenant}-${var.name}-*-deploy-*:*"
       ]
     },
     {
@@ -87,8 +68,8 @@ resource "aws_iam_role_policy" "deployer" {
         "s3:PutObject"
       ],
       "Resource": [
-        "arn:aws:s3:::${var.tenant}-*-codepipeline-*-*",
-        "arn:aws:s3:::${var.tenant}-*-codepipeline-*-*/*"
+        "arn:aws:s3:::${var.tenant}-${var.name}-*-codepipeline-*-*",
+        "arn:aws:s3:::${var.tenant}-${var.name}-*-codepipeline-*-*/*"
       ]
     },
     {
@@ -100,8 +81,8 @@ resource "aws_iam_role_policy" "deployer" {
         "codebuild:BatchPutTestCases"
       ],
       "Resource": [
-        "arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:report-group:/${var.tenant}-*-build-*-*",
-        "arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:report-group:/${var.tenant}-*-deploy-*-*"
+        "arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:report-group:/${var.tenant}-${var.name}-*-build-*-*",
+        "arn:aws:codebuild:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:report-group:/${var.tenant}-${var.name}-*-deploy-*-*"
       ]
     },
     {

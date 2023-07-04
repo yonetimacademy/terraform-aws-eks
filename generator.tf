@@ -210,3 +210,61 @@ helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-contro
   --set serviceAccount.name=aws-load-balancer-controller
 EOF
 }
+
+resource "local_file" "tools_debug" {
+  filename = "${path.root}/_deployables/4_tools_debug.yaml"
+  content  = <<EOF
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tools-debug-by-magicorn
+  namespace: kube-system
+  labels:
+    k8s-app: debug-tools
+    maintainer: magicorn
+spec:
+  selector:
+    matchLabels:
+      k8s-app: debug-tools
+  template:
+    metadata:
+      labels:
+        k8s-app: debug-tools
+        maintainer: magicorn
+    spec:
+      volumes:
+        - name: host
+          hostPath:
+            path: /
+            type: Directory
+      containers:
+        - name: tools-debug-by-magicorn
+          image: public.ecr.aws/magicorn/tools-debug:latest
+          command:
+            - sleep
+            - "infinity"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1000Mi
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - name: host
+              mountPath: /host
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 5
+      dnsPolicy: ClusterFirst
+      schedulerName: default-scheduler
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+  revisionHistoryLimit: 3
+EOF
+}
